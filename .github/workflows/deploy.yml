@@ -10,6 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -20,7 +25,7 @@ jobs:
     - name: Setup Hugo
       uses: peaceiris/actions-hugo@v2
       with:
-        hugo-version: 'latest'
+        hugo-version: '0.121.2'
         extended: true
     
     - name: Setup Node.js
@@ -31,6 +36,9 @@ jobs:
     
     - name: Install dependencies
       run: |
+        if [ -f package.json ]; then
+          npm ci
+        fi
         npm install -g postcss-cli
         npm install -g autoprefixer
     
@@ -40,7 +48,7 @@ jobs:
         ls -la assets/js/
         
         # Validate JavaScript files exist
-        for file in ml-integration.js smart-enhancement.js smart-filters.js error-handling.js performance-optimizer.js data-persistence.js accessibility.js help-system.js analytics.js; do
+        for file in ml-integration.js smart-enhancement.js smart-filters.js error-handling.js performance-optimizer.js data-persistence.js accessibility.js help-system.js analytics.js drawing-tools.js zoom-pan.js image-transform.js tooth-numbering.js measurement-tools.js comparison-view.js professional-ui.js advanced-export.js; do
           if [ ! -f "assets/js/$file" ]; then
             echo "Missing: $file"
             exit 1
@@ -116,10 +124,13 @@ jobs:
           echo "⚠ Warning: JavaScript bundle is large (>500KB)"
         fi
     
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+      
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
-        path: ./public
+        path: './public'
 
   deploy:
     needs: build
