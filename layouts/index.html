@@ -311,13 +311,16 @@
             <h3 class="text-lg font-semibold mb-4">Export Options</h3>
             <div class="space-y-3">
                 {{ range .Site.Params.export_presets }}
-                <button onclick="exportImage('{{ .name }}')" class="preset-button w-full p-3 rounded-lg bg-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-50 hover:bg-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-100 text-left">
+                {{ $color := "blue" }}
+                {{ $icon := "fas fa-image" }}
+                {{ if eq .name "whatsapp" }}{{ $color = "green" }}{{ $icon = "fab fa-whatsapp" }}{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}{{ $color = "pink" }}{{ $icon = "fab fa-instagram" }}{{ end }}
+                <button onclick="exportImage('{{ .name }}')" class="preset-button w-full p-3 rounded-lg bg-{{ $color }}-50 hover:bg-{{ $color }}-100 text-left">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="font-medium text-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-800">{{ .display_name }}</div>
-                            <div class="text-sm text-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-600">{{ .description }}</div>
+                            <div class="font-medium text-{{ $color }}-800">{{ .display_name }}</div>
+                            <div class="text-sm text-{{ $color }}-600">{{ .description }}</div>
                         </div>
-                        <i class="{{ if eq .name "whatsapp" }}fab fa-whatsapp{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}fab fa-instagram{{ else }}fas fa-image{{ end }} text-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-600 text-xl"></i>
+                        <i class="{{ $icon }} text-{{ $color }}-600 text-xl"></i>
                     </div>
                 </button>
                 {{ end }}
@@ -621,19 +624,46 @@
         }
 
         function loadPlaceholderImage() {
-            const img = new Image();
-            img.onload = function() {
-                currentImage = img;
-                displayImage(img);
-                showToast(config.ui.messages.uploadPrompt);
-            };
-            img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPgogICAgVXBsb2FkIGEgZGVudGFsIHBob3RvCiAgPC90ZXh0PgogIDxwYXRoIGQ9Ik0yMDAgMTYwIG0tMjAgMjAgbDQwIDQwIG0wIC00MCBsLTQwIDQwIiBzdHJva2U9IiM5Y2EzYWYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjE0MCIgcj0iMjAiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+';
+            // Create a simple placeholder canvas
+            canvas.width = 400;
+            canvas.height = 300;
+            
+            // Fill background
+            ctx.fillStyle = '#f3f4f6';
+            ctx.fillRect(0, 0, 400, 300);
+            
+            // Draw text
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '18px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Upload a dental photo', 200, 150);
+            
+            // Draw icon
+            ctx.beginPath();
+            ctx.arc(200, 100, 20, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw upload arrow
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(180, 140);
+            ctx.lineTo(200, 120);
+            ctx.lineTo(220, 140);
+            ctx.stroke();
+            
+            // Don't set originalImageData for placeholder - keep it null
+            // so that filters show "upload first" message
+            currentImage = null;
+            originalImageData = null;
+            
+            showToast(config.ui.messages.uploadPrompt);
         }
 
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (file && file.type.startsWith('image/')) {
-                // Show loading immediately for better UX
                 showLoading(true, 'Loading your image...', 'Processing file for editing');
                 
                 const reader = new FileReader();
@@ -642,7 +672,9 @@
                     img.onload = function() {
                         currentImage = img;
                         displayImage(img);
-                        resetAll();
+                        // Don't call resetAll() here - it was causing originalImageData to be cleared
+                        // Reset slider values directly instead
+                        resetSliderValuesOnly();
                         showLoading(false);
                         showToast(config.ui.messages.uploadSuccess + ' - Ready for editing');
                     };
@@ -660,6 +692,33 @@
             } else {
                 showToast('Please select a valid image file');
             }
+        }
+
+        function resetSliderValuesOnly() {
+            // Reset all sliders without touching the image
+            document.getElementById('specularSlider').value = 0;
+            document.getElementById('noiseSlider').value = 0;
+            document.getElementById('whiteningSlider').value = 0;
+            document.getElementById('brightnessSlider').value = 0;
+            document.getElementById('contrastSlider').value = 0;
+            
+            // Reset values
+            specularLevel = 0;
+            noiseReductionLevel = 0;
+            whiteningLevel = 0;
+            brightnessLevel = 0;
+            contrastLevel = 0;
+            
+            // Update displays
+            document.getElementById('specularValue').textContent = '0%';
+            document.getElementById('noiseValue').textContent = '0%';
+            document.getElementById('whiteningValue').textContent = '0%';
+            document.getElementById('brightnessValue').textContent = '0%';
+            document.getElementById('contrastValue').textContent = '0%';
+            
+            // Reset comparison
+            isComparing = false;
+            document.getElementById('comparisonSlider').classList.add('hidden');
         }
 
         function displayImage(img) {
