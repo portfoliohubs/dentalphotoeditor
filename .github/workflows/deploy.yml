@@ -33,12 +33,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
     
     - name: Install dependencies
       run: |
         if [ -f package.json ]; then
-          npm ci
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+            npm ci
+          else
+            npm install
+          fi
         fi
         npm install -g postcss-cli
         npm install -g autoprefixer
