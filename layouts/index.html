@@ -2,7 +2,7 @@
 <html lang="{{ .Site.LanguageCode }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>{{ .Site.Params.seo_title | default .Site.Title }}</title>
     <meta name="description" content="{{ .Site.Params.seo_description }}">
     <meta name="keywords" content="{{ .Site.Params.seo_keywords }}">
@@ -44,38 +44,49 @@
         
         * {
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
         }
         
-        body {
-            overscroll-behavior: none;
-            touch-action: pan-y;
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
         }
         
         .canvas-container {
             position: relative;
             max-width: 100%;
+            max-height: 100%;
             margin: 0 auto;
             background: repeating-conic-gradient(#f3f4f6 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+            overflow: hidden;
+        }
+        
+        #canvasWrapper {
+            -webkit-overflow-scrolling: touch;
         }
         
         #mainCanvas {
             display: block;
             max-width: 100%;
             height: auto;
-            touch-action: none;
+            touch-action: pan-x pan-y;
         }
         
         .tool-button {
-            transition: all 0.2s ease;
-            transform: translateZ(0);
-            will-change: transform;
+            transition: transform 0.15s ease;
+            min-height: 44px;
+            min-width: 44px;
         }
         
-        .tool-button:active {
-            transform: scale(0.95);
+        @media (max-width: 640px) {
+            .tool-button {
+                padding: 0.5rem !important;
+            }
+            .tool-button span {
+                font-size: 0.65rem;
+            }
+            .tool-button i {
+                font-size: 1rem;
+            }
         }
         
         .slider-container {
@@ -127,16 +138,16 @@
             position: absolute;
             top: 0;
             left: 50%;
-            width: 4px;
+            width: 40px;
             height: 100%;
-            background: white;
+            background: transparent;
             cursor: ew-resize;
             z-index: 10;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            transform: translateX(-50%);
+            touch-action: pan-y;
         }
         
-        .comparison-slider::before {
-            content: '';
+        .comparison-slider-handle {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -145,18 +156,10 @@
             height: 40px;
             background: white;
             border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .comparison-slider::after {
-            content: '◀ ▶';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 12px;
-            color: #64748b;
-            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .preset-button {
@@ -192,7 +195,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col overflow-hidden">
+<body class="bg-gray-50 h-screen flex flex-col overflow-hidden">
     <!-- Header -->
     <header class="top-header bg-white shadow-sm z-20 px-4 py-3">
         <div class="flex items-center justify-between max-w-6xl mx-auto">
@@ -214,17 +217,19 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <!-- Canvas Area -->
-        <div class="flex-1 flex items-center justify-center p-4 overflow-auto">
+    <main class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <!-- Canvas Area - Allow scrolling if image is larger than viewport -->
+        <div class="flex-1 flex items-center justify-center p-4 overflow-auto min-h-0" id="canvasWrapper">
             <div class="canvas-container relative">
                 <canvas id="mainCanvas" class="rounded-lg shadow-lg"></canvas>
-                <div id="comparisonSlider" class="comparison-slider hidden"></div>
+                <div id="comparisonSlider" class="comparison-slider hidden">
+                    <div class="comparison-slider-handle">◀▶</div>
+                </div>
             </div>
         </div>
 
-        <!-- Tool Controls -->
-        <div id="toolControls" class="bg-white border-t border-gray-200 px-4 py-3 space-y-4 max-h-64 overflow-y-auto">
+        <!-- Tool Controls - Improved scroll for mobile -->
+        <div id="toolControls" class="bg-white border-t border-gray-200 px-4 py-3 space-y-3 overflow-y-auto flex-shrink-0" style="max-height: 35vh;">
             {{ range .Site.Params.tools }}
             <!-- {{ .name }} Control -->
             <div class="slider-container">
@@ -241,8 +246,8 @@
         </div>
     </main>
 
-    <!-- Bottom Toolbar -->
-    <div class="bottom-toolbar bg-white border-t border-gray-200 shadow-lg">
+    <!-- Bottom Toolbar - Fixed height, no scroll -->
+    <div class="bottom-toolbar bg-white border-t border-gray-200 shadow-lg flex-shrink-0">
         <div class="px-4 py-2">
             <!-- Smart Features Row -->
             <div class="grid grid-cols-4 gap-2 mb-2">
@@ -603,15 +608,19 @@
         }
 
         function setupTouchEvents() {
-            // Prevent default touch behaviors on sliders only, not tool buttons
-            // to allow proper click events for upload and other buttons
-            document.addEventListener('touchstart', function(e) {
-                if (e.target.closest('.slider')) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
+            // Only prevent default on actual slider inputs, not the whole document
+            // This allows normal page scrolling everywhere else
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                slider.addEventListener('touchstart', function(e) {
+                    // Only prevent default if touching the thumb directly
+                    if (e.target === slider || e.target.closest('.slider::-webkit-slider-thumb')) {
+                        e.stopPropagation();
+                    }
+                }, { passive: true });
+            });
 
-            // Double tap to reset
+            // Double tap to reset on canvas only
             let lastTap = 0;
             canvas.addEventListener('touchend', function(e) {
                 const currentTime = new Date().getTime();
