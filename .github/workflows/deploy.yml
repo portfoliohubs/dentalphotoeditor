@@ -92,7 +92,7 @@ jobs:
         fi
         
         # Check if HTML includes smart features
-        if grep -q "smart-features" public/index.html; then
+        if grep -q "\/assets\/js\/ml-integration\.js" public/index.html; then
           echo "✓ Smart features integrated in HTML"
         else
           echo "✗ Smart features not integrated in HTML"
