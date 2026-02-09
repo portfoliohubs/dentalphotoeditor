@@ -72,6 +72,11 @@ jobs:
     - name: Build Hugo site
       run: |
         hugo --minify --gc
+
+    - name: Copy smart features scripts to public
+      run: |
+        mkdir -p public/assets/js
+        cp -R assets/js/. public/assets/js/
     
     - name: Validate build output
       run: |
