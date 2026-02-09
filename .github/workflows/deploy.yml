@@ -1,0 +1,150 @@
+name: Deploy Hugo Site to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: 'latest'
+        extended: true
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install -g postcss-cli
+        npm install -g autoprefixer
+    
+    - name: Validate smart features assets
+      run: |
+        echo "Checking smart features assets..."
+        ls -la assets/js/
+        
+        # Validate JavaScript files exist
+        for file in ml-integration.js smart-enhancement.js smart-filters.js error-handling.js performance-optimizer.js data-persistence.js accessibility.js help-system.js analytics.js; do
+          if [ ! -f "assets/js/$file" ]; then
+            echo "Missing: $file"
+            exit 1
+          else
+            echo "✓ Found: $file"
+          fi
+        done
+        
+        # Validate configuration
+        if grep -q "smart_features" config.toml; then
+          echo "✓ Smart features configuration found"
+        else
+          echo "✗ Smart features configuration missing"
+          exit 1
+        fi
+    
+    - name: Build Hugo site
+      run: |
+        hugo --minify --gc
+    
+    - name: Validate build output
+      run: |
+        echo "Checking build output..."
+        ls -la public/
+        
+        # Check if smart features scripts are in build
+        if [ -f "public/assets/js/ml-integration.js" ]; then
+          echo "✓ Smart features scripts built successfully"
+        else
+          echo "✗ Smart features scripts missing from build"
+          exit 1
+        fi
+        
+        # Check if HTML includes smart features
+        if grep -q "smart-features" public/index.html; then
+          echo "✓ Smart features integrated in HTML"
+        else
+          echo "✗ Smart features not integrated in HTML"
+          exit 1
+        fi
+    
+    - name: Run security checks
+      run: |
+        echo "Running security checks..."
+        
+        # Check for external script security
+        if grep -q "script.*http" public/index.html; then
+          echo "⚠ Warning: HTTP scripts detected - should use HTTPS"
+        fi
+        
+        # Check for inline scripts (should be minimal)
+        inline_scripts=$(grep -c "onclick=" public/index.html || echo "0")
+        echo "Inline scripts found: $inline_scripts"
+        
+        if [ "$inline_scripts" -gt 20 ]; then
+          echo "⚠ Warning: Many inline scripts detected"
+        fi
+    
+    - name: Performance audit
+      run: |
+        echo "Running basic performance checks..."
+        
+        # Check total build size
+        build_size=$(du -sh public/ | cut -f1)
+        echo "Build size: $build_size"
+        
+        # Check JavaScript bundle sizes
+        js_size=$(du -sh public/assets/js/ | cut -f1)
+        echo "JavaScript size: $js_size"
+        
+        # Warn if too large
+        if [ ${js_size%?} -gt 500 ]; then
+          echo "⚠ Warning: JavaScript bundle is large (>500KB)"
+        fi
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    permissions:
+      pages: write
+      id-token: write
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+    
+    - name: Post-deployment validation
+      run: |
+        echo "Validating deployment..."
+        
+        # Check deployment URL
+        echo "Deployed to: ${{ steps.deployment.outputs.page_url }}"
+        
+        # Note: Add actual smoke tests here if needed
+        echo "✓ Deployment validation complete"

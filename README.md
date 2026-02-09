@@ -1,2 +1,0 @@
-# dentalphotoeditor
-dentalphotoeditor

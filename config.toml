@@ -1,0 +1,243 @@
+baseURL = "https://portfoliohubs.github.io/dentalphotoeditor"
+languageCode = "en-us"
+title = "Dental Photo Editor - Dr. Michael Nabil Clinic"
+defaultContentLanguage = "en"
+
+[params]
+  # Clinic Information
+  clinic_name = "Dr. Michael Nabil Dental Clinic"
+  clinic_name_ar = "عيادة د. مايكل نبيل لطب الأسنان"
+  doctor_name = "Dr. Michael Nabil"
+  doctor_name_ar = "د. مايكل نبيل"
+  
+  # Contact Information
+  phone = "+201271476215"
+  whatsapp = "+201271476215"
+  email = "michaelnabilofficial1@gmail.com"
+  instagram = "https://www.instagram.com/michaelnabilofficial/"
+  facebook = "https://www.facebook.com/Micky1000000"
+  linkedin = "https://linkedin.com/in/yourprofile"
+  
+  # Location
+  location = "مستشفيات جامعة الزقازيق -الزقازيق-الشرقية"
+  location_en = "University Hospitals - Zagazig, Sharqia, Egypt"
+  latitude = "30.585070727964393"
+  longitude = "31.487296675825437"
+  
+  # Brand Colors
+  brand_primary = "#0ea5e9"
+  brand_secondary = "#1d4ed8"
+  brand_accent = "#22c55e"
+  bg_primary = "#ffffff"
+  bg_secondary = "#f8fafc"
+  text_primary = "#0f172a"
+  text_secondary = "#475569"
+  
+  # App Configuration
+  app_name = "Dental Photo Editor"
+  app_tagline = "AI-powered dental photo editing with smart detection"
+  app_tagline_ar = "تحرير صور الأسنان بالذكاء الاصطناعي مع الكشف الذكي"
+  app_description = "Advanced dental photo editor with AI-powered tooth detection, VITA shade matching, and smart enhancement. Professional dental photography tools for mobile devices."
+  app_description_ar = "محرر صور أسنان متقدم مع الكشف الذكي للأسنان بالذكاء الاصطناعي، مطابقة درجات VITA، وتحسين ذكي. أدوات تصوير أسنان احترافية للأجهزة المحمولة."
+  
+  # SEO Configuration
+  seo_title = "AI Dental Photo Editor | Smart Detection & VITA Shades"
+  seo_description = "Advanced dental photo editor with AI-powered tooth detection, VITA shade matching, smart enhancement, and professional dental photography tools."
+  seo_keywords = "AI dental photo editor, smart dental detection, VITA shade matching, dental AI, dental photography, tooth detection, smart dental app, professional dental tools"
+  og_image = "/assets/og-image.jpg"
+  favicon = "/assets/favicon.ico"
+  
+  # Smart Features Configuration
+  [params.smart_features]
+    enabled = true
+    auto_detection = true
+    ai_enhancement = true
+    vita_shades = true
+    camera_profiles = true
+    professional_presets = true
+    
+    # AI Model Settings
+    [params.smart_features.models]
+      tooth_detection_confidence = 0.8
+      gum_detection_sensitivity = 0.7
+      plaque_detection_threshold = 0.6
+      restoration_detection_accuracy = 0.75
+    
+    # Performance Settings
+    [params.smart_features.performance]
+      max_processing_time = 3000  # milliseconds
+      mobile_optimization = true
+      memory_limit = 512  # MB
+      gpu_acceleration = true
+    
+    # Professional Settings
+    [params.smart_features.professional]
+      vita_shade_system = "classical"  # classical, 3d_master, bleached
+      clinical_documentation_mode = true
+      measurement_accuracy = "high"  # low, medium, high
+      annotation_tools = true
+
+  # Export Presets
+  [[params.export_presets]]
+    name = "whatsapp"
+    display_name = "WhatsApp"
+    width = 1080
+    height = 1920
+    quality = 0.8
+    description = "Optimized for WhatsApp sharing"
+    
+  [[params.export_presets]]
+    name = "instagram-square"
+    display_name = "Instagram Square"
+    width = 1080
+    height = 1080
+    quality = 0.9
+    description = "Instagram square format"
+    
+  [[params.export_presets]]
+    name = "instagram-story"
+    display_name = "Instagram Story"
+    width = 1080
+    height = 1920
+    quality = 0.9
+    description = "Instagram story format"
+    
+  [[params.export_presets]]
+    name = "original"
+    display_name = "Original Size"
+    width = 0
+    height = 0
+    quality = 1.0
+    description = "Maximum quality"
+  
+  # Tool Configuration
+  [[params.tools]]
+    id = "specular"
+    name = "Specular Highlights"
+    name_ar = "التحكم في التوهج"
+    icon = "fa-sun"
+    color = "yellow"
+    min = -100
+    max = 100
+    default = 0
+    description = "Adjust glare and reflections on teeth"
+    
+  [[params.tools]]
+    id = "noise"
+    name = "Noise Reduction"
+    name_ar = "تقليل الضوضاء"
+    icon = "fa-wave-square"
+    color = "green"
+    min = 0
+    max = 100
+    default = 0
+    description = "Phone camera-optimized noise filtering"
+    
+  [[params.tools]]
+    id = "whitening"
+    name = "Shade-Safe Whitening"
+    name_ar = "تبييض آمن للدرجات"
+    icon = "fa-magic"
+    color = "purple"
+    min = 0
+    max = 100
+    default = 0
+    description = "Preserves natural tooth shades while whitening"
+    
+  [[params.tools]]
+    id = "brightness"
+    name = "Brightness"
+    name_ar = "السطوع"
+    icon = "fa-sun"
+    color = "orange"
+    min = -100
+    max = 100
+    default = 0
+    description = "Adjust image brightness"
+    
+  [[params.tools]]
+    id = "contrast"
+    name = "Contrast"
+    name_ar = "التباين"
+    icon = "fa-adjust"
+    color = "gray"
+    min = -100
+    max = 100
+    default = 0
+    description = "Adjust image contrast"
+  
+  # Quick Presets
+  [[params.quick_presets]]
+    name = "whatsapp"
+    display_name = "WhatsApp"
+    icon = "fab fa-whatsapp"
+    color = "green"
+    brightness = 10
+    contrast = 5
+    noise = 15
+    specular = -20
+    whitening = 15
+    
+  [[params.quick_presets]]
+    name = "instagram"
+    display_name = "Instagram"
+    icon = "fab fa-instagram"
+    color = "pink"
+    brightness = 15
+    contrast = 10
+    noise = 10
+    specular = -15
+    whitening = 20
+  
+  # UI Text
+  [params.ui]
+    upload_text = "Upload"
+    upload_text_ar = "رفع"
+    export_text = "Export"
+    export_text_ar = "تصدير"
+    more_text = "More"
+    more_text_ar = "المزيد"
+    reset_text = "Reset"
+    reset_text_ar = "إعادة تعيين"
+    comparison_text = "Comparison"
+    comparison_text_ar = "مقارنة"
+    processing_text = "Processing..."
+    processing_text_ar = "جاري المعالجة..."
+    
+    [params.ui.messages]
+      upload_success = "Image loaded successfully"
+      upload_success_ar = "تم تحميل الصورة بنجاح"
+      upload_prompt = "Upload a dental photo to start editing"
+      upload_prompt_ar = "ارفع صورة أسنان لبدء التحرير"
+      preset_applied = "preset applied"
+      preset_applied_ar = "تم تطبيق الإعداد المسبق"
+      image_exported = "Image exported for"
+      image_exported_ar = "تم تصدير الصورة لـ"
+      settings_reset = "All settings reset"
+      settings_reset_ar = "تم إعادة تعيين جميع الإعدادات"
+      comparison_enabled = "Comparison mode enabled"
+      comparison_enabled_ar = "تم تفعيل وضع المقارنة"
+      comparison_disabled = "Comparison mode disabled"
+      comparison_disabled_ar = "تم إلغاء وضع المقارنة"
+      upload_first = "Please upload an image first"
+      upload_first_ar = "يرجى رفع صورة أولاً"
+      coming_soon = "More options coming soon"
+      coming_soon_ar = "المزيد من الخيارات قريباً"
+
+# Hugo Build Settings
+[build]
+  writeStats = true
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[minify]
+  [minify.tdewolff]
+    [minify.tdewolff.html]
+      keepWhitespace = false
+    [minify.tdewolff.css]
+      keepWhitespace = false
+    [minify.tdewolff.js]
+      keepWhitespace = false

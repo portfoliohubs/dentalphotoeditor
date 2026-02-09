@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{{ .Site.Params.seo_title | default .Site.Title }}</title>
+    <meta name="description" content="{{ .Site.Params.seo_description }}">
+    <meta name="keywords" content="{{ .Site.Params.seo_keywords }}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ .Site.Params.seo_title | default .Site.Title }}">
+    <meta property="og:description" content="{{ .Site.Params.seo_description }}">
+    <meta property="og:image" content="{{ .Site.Params.og_image }}">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ .Site.Params.favicon }}">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Smart Features Scripts -->
+    <script src="/assets/js/ml-integration.js"></script>
+    <script src="/assets/js/smart-enhancement.js"></script>
+    <script src="/assets/js/smart-filters.js"></script>
+    <script src="/assets/js/error-handling.js"></script>
+    <script src="/assets/js/performance-optimizer.js"></script>
+    <script src="/assets/js/data-persistence.js"></script>
+    <script src="/assets/js/accessibility.js"></script>
+    <script src="/assets/js/help-system.js"></script>
+    <script src="/assets/js/analytics.js"></script>
+    
+    <style>
+        :root {
+            --brand-primary: {{ .Site.Params.brand_primary }};
+            --brand-secondary: {{ .Site.Params.brand_secondary }};
+            --brand-accent: {{ .Site.Params.brand_accent }};
+            --bg-primary: {{ .Site.Params.bg_primary }};
+            --bg-secondary: {{ .Site.Params.bg_secondary }};
+            --text-primary: {{ .Site.Params.text_primary }};
+            --text-secondary: {{ .Site.Params.text_secondary }};
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            overscroll-behavior: none;
+            touch-action: pan-y;
+        }
+        
+        .canvas-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            background: repeating-conic-gradient(#f3f4f6 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+        }
+        
+        #mainCanvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+        
+        .tool-button {
+            transition: all 0.2s ease;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        
+        .tool-button:active {
+            transform: scale(0.95);
+        }
+        
+        .slider-container {
+            position: relative;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        .slider::-webkit-slider-track {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 3px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--brand-primary);
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-top: -9px;
+        }
+        
+        .slider::-moz-range-track {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 3px;
+        }
+        
+        .slider::-moz-range-thumb {
+            background: var(--brand-primary);
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: none;
+        }
+        
+        .comparison-slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: white;
+            cursor: ew-resize;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .comparison-slider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .comparison-slider::after {
+            content: '◀ ▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        
+        .preset-button {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .preset-button:hover {
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+        }
+        
+        .loading-overlay {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .bottom-toolbar {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .top-header {
+            padding-top: env(safe-area-inset-top);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col overflow-hidden">
+    <!-- Header -->
+    <header class="top-header bg-white shadow-sm z-20 px-4 py-3">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-tooth text-white text-sm"></i>
+                </div>
+                <h1 class="text-lg font-semibold text-gray-900">{{ .Site.Params.app_name }}</h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="resetAll()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-undo text-lg"></i>
+                </button>
+                <button onclick="toggleComparison()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                    <i class="fas fa-columns text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Canvas Area -->
+        <div class="flex-1 flex items-center justify-center p-4 overflow-auto">
+            <div class="canvas-container relative">
+                <canvas id="mainCanvas" class="rounded-lg shadow-lg"></canvas>
+                <div id="comparisonSlider" class="comparison-slider hidden"></div>
+            </div>
+        </div>
+
+        <!-- Tool Controls -->
+        <div id="toolControls" class="bg-white border-t border-gray-200 px-4 py-3 space-y-4 max-h-64 overflow-y-auto">
+            {{ range .Site.Params.tools }}
+            <!-- {{ .name }} Control -->
+            <div class="slider-container">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-medium text-gray-700 flex items-center">
+                        <i class="fas {{ .icon }} text-{{ .color }}-500 mr-2"></i>
+                        {{ .name }}
+                    </label>
+                    <span id="{{ .id }}Value" class="text-sm text-gray-500">{{ .default }}%</span>
+                </div>
+                <input type="range" id="{{ .id }}Slider" class="slider w-full" min="{{ .min }}" max="{{ .max }}" value="{{ .default }}">
+            </div>
+            {{ end }}
+        </div>
+    </main>
+
+    <!-- Bottom Toolbar -->
+    <div class="bottom-toolbar bg-white border-t border-gray-200 shadow-lg">
+        <div class="px-4 py-2">
+            <!-- Smart Features Row -->
+            <div class="grid grid-cols-4 gap-2 mb-2">
+                <!-- Smart Enhance -->
+                <button onclick="applySmartEnhance()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all">
+                    <i class="fas fa-magic text-purple-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700 font-medium">Smart</span>
+                </button>
+
+                <!-- Dental Mode -->
+                <button onclick="applyDentalMode()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-gradient-to-r from-green-50 to-teal-50 hover:from-green-100 hover:to-teal-100 transition-all">
+                    <i class="fas fa-tooth text-teal-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700 font-medium">Dental</span>
+                </button>
+
+                <!-- Auto Detection -->
+                <button onclick="runAutoDetection()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all">
+                    <i class="fas fa-search text-orange-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700 font-medium">Detect</span>
+                </button>
+
+                <!-- Professional Tools -->
+                <button onclick="showProfessionalTools()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 transition-all">
+                    <i class="fas fa-tools text-indigo-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700 font-medium">Pro</span>
+                </button>
+            </div>
+
+            <!-- Traditional Controls Row -->
+            <div class="grid grid-cols-5 gap-2">
+                <!-- Upload Button -->
+                <button onclick="document.getElementById('fileInput').click()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-upload text-blue-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700">{{ .Site.Params.ui.upload_text }}</span>
+                </button>
+
+                <!-- Quick Presets -->
+                {{ range .Site.Params.quick_presets }}
+                <button onclick="applyPreset('{{ .name }}')" class="tool-button flex flex-col items-center p-3 rounded-lg bg-{{ .color }}-50 hover:bg-{{ .color }}-100 transition-colors">
+                    <i class="{{ .icon }} text-{{ .color }}-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700">{{ .display_name }}</span>
+                </button>
+                {{ end }}
+
+                <!-- Export Button -->
+                <button onclick="showExportOptions()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors">
+                    <i class="fas fa-download text-purple-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700">{{ .Site.Params.ui.export_text }}</span>
+                </button>
+
+                <!-- More Options -->
+                <button onclick="showMoreOptions()" class="tool-button flex flex-col items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-ellipsis-h text-gray-600 text-lg mb-1"></i>
+                    <span class="text-xs text-gray-700">{{ .Site.Params.ui.more_text }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(event)">
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6">
+            <h3 class="text-lg font-semibold mb-4">Export Options</h3>
+            <div class="space-y-3">
+                {{ range .Site.Params.export_presets }}
+                <button onclick="exportImage('{{ .name }}')" class="preset-button w-full p-3 rounded-lg bg-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-50 hover:bg-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-100 text-left">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-medium text-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-800">{{ .display_name }}</div>
+                            <div class="text-sm text-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-600">{{ .description }}</div>
+                        </div>
+                        <i class="{{ if eq .name "whatsapp" }}fab fa-whatsapp{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}fab fa-instagram{{ else }}fas fa-image{{ end }} text-{{ if eq .name "whatsapp" }}green{{ else if or (eq .name "instagram-square") (eq .name "instagram-story") }}pink{{ else }}blue{{ end }}-600 text-xl"></i>
+                    </div>
+                </button>
+                {{ end }}
+            </div>
+            
+            <button onclick="closeExportModal()" class="w-full mt-4 p-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Professional Tools Modal -->
+    <div id="professionalToolsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 max-h-[80vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">Professional Tools</h3>
+            
+            <!-- VITA Shade Matching -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-palette text-purple-600 mr-2"></i>
+                    VITA Shade Matching
+                </h4>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="matchVITAShade('A1')" class="p-2 bg-purple-50 hover:bg-purple-100 rounded text-xs font-medium">A1</button>
+                    <button onclick="matchVITAShade('A2')" class="p-2 bg-purple-50 hover:bg-purple-100 rounded text-xs font-medium">A2</button>
+                    <button onclick="matchVITAShade('A3')" class="p-2 bg-purple-50 hover:bg-purple-100 rounded text-xs font-medium">A3</button>
+                    <button onclick="matchVITAShade('A4')" class="p-2 bg-purple-50 hover:bg-purple-100 rounded text-xs font-medium">A4</button>
+                    <button onclick="matchVITAShade('B1')" class="p-2 bg-blue-50 hover:bg-blue-100 rounded text-xs font-medium">B1</button>
+                    <button onclick="matchVITAShade('B2')" class="p-2 bg-blue-50 hover:bg-blue-100 rounded text-xs font-medium">B2</button>
+                    <button onclick="matchVITAShade('B3')" class="p-2 bg-blue-50 hover:bg-blue-100 rounded text-xs font-medium">B3</button>
+                    <button onclick="matchVITAShade('B4')" class="p-2 bg-blue-50 hover:bg-blue-100 rounded text-xs font-medium">B4</button>
+                    <button onclick="matchVITAShade('C1')" class="p-2 bg-green-50 hover:bg-green-100 rounded text-xs font-medium">C1</button>
+                    <button onclick="matchVITAShade('C2')" class="p-2 bg-green-50 hover:bg-green-100 rounded text-xs font-medium">C2</button>
+                    <button onclick="matchVITAShade('C3')" class="p-2 bg-green-50 hover:bg-green-100 rounded text-xs font-medium">C3</button>
+                    <button onclick="matchVITAShade('C4')" class="p-2 bg-green-50 hover:bg-green-100 rounded text-xs font-medium">C4</button>
+                    <button onclick="matchVITAShade('D1')" class="p-2 bg-orange-50 hover:bg-orange-100 rounded text-xs font-medium">D1</button>
+                    <button onclick="matchVITAShade('D2')" class="p-2 bg-orange-50 hover:bg-orange-100 rounded text-xs font-medium">D2</button>
+                    <button onclick="matchVITAShade('D3')" class="p-2 bg-orange-50 hover:bg-orange-100 rounded text-xs font-medium">D3</button>
+                    <button onclick="matchVITAShade('D4')" class="p-2 bg-orange-50 hover:bg-orange-100 rounded text-xs font-medium">D4</button>
+                </div>
+            </div>
+
+            <!-- Camera Profiles -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-camera text-blue-600 mr-2"></i>
+                    Camera Profiles
+                </h4>
+                <div class="space-y-2">
+                    <button onclick="applyCameraProfile('iphone-13-pro')" class="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded text-left text-sm">iPhone 13 Pro</button>
+                    <button onclick="applyCameraProfile('samsung-s23')" class="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded text-left text-sm">Samsung S23</button>
+                    <button onclick="applyCameraProfile('canon-eos')" class="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded text-left text-sm">Canon EOS</button>
+                    <button onclick="applyCameraProfile('dexis')" class="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded text-left text-sm">Dexis Intraoral</button>
+                </div>
+            </div>
+
+            <!-- Professional Presets -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-sliders-h text-green-600 mr-2"></i>
+                    Professional Presets
+                </h4>
+                <div class="space-y-2">
+                    <button onclick="applyProfessionalPreset('clinical-standard')" class="w-full p-2 bg-green-50 hover:bg-green-100 rounded text-left text-sm">Clinical Standard</button>
+                    <button onclick="applyProfessionalPreset('shade-matching')" class="w-full p-2 bg-green-50 hover:bg-green-100 rounded text-left text-sm">Shade Matching</button>
+                    <button onclick="applyProfessionalPreset('cosmetic-enhanced')" class="w-full p-2 bg-green-50 hover:bg-green-100 rounded text-left text-sm">Cosmetic Enhanced</button>
+                    <button onclick="applyProfessionalPreset('diagnostic-detail')" class="w-full p-2 bg-green-50 hover:bg-green-100 rounded text-left text-sm">Diagnostic Detail</button>
+                </div>
+            </div>
+
+            <!-- Detection Results -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-eye text-orange-600 mr-2"></i>
+                    Detection Results
+                </h4>
+                <div id="detectionResults" class="text-sm text-gray-600">
+                    <p>Run auto-detection to see results</p>
+                </div>
+            </div>
+            
+            <button onclick="closeProfessionalTools()" class="w-full p-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 flex flex-col items-center max-w-xs mx-4">
+            <div class="animate-pulse-slow mb-4">
+                <i class="fas fa-tooth text-4xl text-blue-600"></i>
+            </div>
+            <div class="text-gray-700 font-medium text-center" id="loadingMessage">{{ .Site.Params.ui.processing_text }}</div>
+            <div class="text-gray-500 text-sm text-center mt-2" id="loadingSubMessage">Please wait...</div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg z-50 hidden transition-all duration-300">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Global Variables
+        let canvas, ctx;
+        let originalImageData = null;
+        let currentImage = null;
+        let isComparing = false;
+        let comparisonPosition = 0.5;
+        let isDraggingComparison = false;
+
+        // Image Processing Variables
+        let specularLevel = 0;
+        let noiseReductionLevel = 0;
+        let whiteningLevel = 0;
+        let brightnessLevel = 0;
+        let contrastLevel = 0;
+
+        // Smart Features Variables
+        let mlIntegration = null;
+        let smartEnhancement = null;
+        let smartFilters = null;
+        let detectionResults = null;
+        let isSmartProcessing = false;
+
+        // Configuration from Hugo
+        const config = {
+            clinic: {
+                name: "{{ .Site.Params.clinic_name }}",
+                doctor: "{{ .Site.Params.doctor_name }}"
+            },
+            ui: {
+                messages: {
+                    uploadSuccess: "{{ .Site.Params.ui.messages.upload_success }}",
+                    uploadPrompt: "{{ .Site.Params.ui.messages.upload_prompt }}",
+                    presetApplied: "{{ .Site.Params.ui.messages.preset_applied }}",
+                    imageExported: "{{ .Site.Params.ui.messages.image_exported }}",
+                    settingsReset: "{{ .Site.Params.ui.messages.settings_reset }}",
+                    comparisonEnabled: "{{ .Site.Params.ui.messages.comparison_enabled }}",
+                    comparisonDisabled: "{{ .Site.Params.ui.messages.comparison_disabled }}",
+                    uploadFirst: "{{ .Site.Params.ui.messages.upload_first }}",
+                    comingSoon: "{{ .Site.Params.ui.messages.coming_soon }}"
+                }
+            },
+            presets: {
+                whatsapp: { brightness: 10, contrast: 5, noise: 15, specular: -20, whitening: 15 },
+                instagram: { brightness: 15, contrast: 10, noise: 10, specular: -15, whitening: 20 }
+            },
+            exportPresets: {
+                whatsapp: { width: 1080, height: 1920, quality: 0.8 },
+                "instagram-square": { width: 1080, height: 1080, quality: 0.9 },
+                "instagram-story": { width: 1080, height: 1920, quality: 0.9 },
+                original: { width: 0, height: 0, quality: 1.0 }
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('mainCanvas');
+            ctx = canvas.getContext('2d');
+            
+            setupEventListeners();
+            loadPlaceholderImage();
+            
+            // Setup touch events for mobile
+            setupTouchEvents();
+            
+            // Initialize smart features
+            initializeSmartFeatures();
+        });
+
+        async function initializeSmartFeatures() {
+            try {
+                showLoading(true, 'Initializing Smart Features...', 'Loading AI models...');
+                
+                // Initialize data persistence first
+                const userSettings = window.dataPersistenceManager.loadSettings();
+                
+                // Initialize ML integration with error handling
+                mlIntegration = wrapSmartFunction(
+                    async () => {
+                        const ml = new MLIntegration();
+                        await ml.initialize();
+                        return ml;
+                    },
+                    window.smartFeaturesErrorHandler,
+                    'ml_initialization'
+                );
+                
+                const mlResult = await mlIntegration();
+                if (mlResult.success) {
+                    mlIntegration = mlResult.result;
+                } else {
+                    throw new Error(mlResult.error);
+                }
+                
+                // Initialize smart enhancement engine
+                smartEnhancement = new SmartEnhancementEngine();
+                
+                // Initialize smart filters with performance optimization
+                smartFilters = new SmartFilters();
+                smartFilters.initialize(mlIntegration, smartEnhancement);
+                
+                // Apply user preferences
+                window.dataPersistenceManager.applyUserPreferences(userSettings.userPreferences);
+                
+                // Cache performance profile
+                const perfProfile = window.mobilePerformanceOptimizer.getPerformanceStatus();
+                window.dataPersistenceManager.cachePerformanceProfile(perfProfile.deviceProfile);
+                
+                showLoading(false);
+                showToast('Smart features ready! AI-powered dental editing enabled.');
+                
+                // Track initialization
+                window.dataPersistenceManager.trackUsage('smart_features_initialized', {
+                    success: true,
+                    deviceProfile: perfProfile.deviceProfile.optimizationLevel
+                });
+                
+            } catch (error) {
+                console.error('Failed to initialize smart features:', error);
+                showLoading(false);
+                
+                // Handle initialization error
+                const errorResult = window.smartFeaturesErrorHandler.handleMLError(error, 'ml_initialization');
+                showToast(errorResult.message);
+                
+                // Track initialization failure
+                window.dataPersistenceManager.trackUsage('smart_features_initialized', {
+                    success: false,
+                    error: error.message
+                });
+            }
+        }
+
+        function setupEventListeners() {
+            // Slider listeners
+            document.getElementById('specularSlider').addEventListener('input', function(e) {
+                specularLevel = parseInt(e.target.value);
+                document.getElementById('specularValue').textContent = specularLevel + '%';
+                applyFilters();
+            });
+
+            document.getElementById('noiseSlider').addEventListener('input', function(e) {
+                noiseReductionLevel = parseInt(e.target.value);
+                document.getElementById('noiseValue').textContent = noiseReductionLevel + '%';
+                applyFilters();
+            });
+
+            document.getElementById('whiteningSlider').addEventListener('input', function(e) {
+                whiteningLevel = parseInt(e.target.value);
+                document.getElementById('whiteningValue').textContent = whiteningLevel + '%';
+                applyFilters();
+            });
+
+            document.getElementById('brightnessSlider').addEventListener('input', function(e) {
+                brightnessLevel = parseInt(e.target.value);
+                document.getElementById('brightnessValue').textContent = brightnessLevel + '%';
+                applyFilters();
+            });
+
+            document.getElementById('contrastSlider').addEventListener('input', function(e) {
+                contrastLevel = parseInt(e.target.value);
+                document.getElementById('contrastValue').textContent = contrastLevel + '%';
+                applyFilters();
+            });
+
+            // Comparison slider events
+            const comparisonSlider = document.getElementById('comparisonSlider');
+            
+            comparisonSlider.addEventListener('mousedown', startComparisonDrag);
+            comparisonSlider.addEventListener('touchstart', startComparisonDrag);
+            
+            document.addEventListener('mousemove', handleComparisonDrag);
+            document.addEventListener('touchmove', handleComparisonDrag);
+            
+            document.addEventListener('mouseup', endComparisonDrag);
+            document.addEventListener('touchend', endComparisonDrag);
+        }
+
+        function setupTouchEvents() {
+            // Prevent default touch behaviors
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.closest('.slider') || e.target.closest('.tool-button')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Double tap to reset
+            let lastTap = 0;
+            canvas.addEventListener('touchend', function(e) {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                if (tapLength < 500 && tapLength > 0) {
+                    resetAll();
+                }
+                lastTap = currentTime;
+            });
+        }
+
+        function loadPlaceholderImage() {
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                displayImage(img);
+                showToast(config.ui.messages.uploadPrompt);
+            };
+            img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPgogICAgVXBsb2FkIGEgZGVudGFsIHBob3RvCiAgPC90ZXh0PgogIDxwYXRoIGQ9Ik0yMDAgMTYwIG0tMjAgMjAgbDQwIDQwIG0wIC00MCBsLTQwIDQwIiBzdHJva2U9IiM5Y2EzYWYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjE0MCIgcj0iMjAiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                // Show loading immediately for better UX
+                showLoading(true, 'Loading your image...', 'Processing file for editing');
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        currentImage = img;
+                        displayImage(img);
+                        resetAll();
+                        showLoading(false);
+                        showToast(config.ui.messages.uploadSuccess + ' - Ready for editing');
+                    };
+                    img.onerror = function() {
+                        showLoading(false);
+                        showToast('Error loading image. Please try another file.');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = function() {
+                    showLoading(false);
+                    showToast('Error reading file. Please try again.');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showToast('Please select a valid image file');
+            }
+        }
+
+        function displayImage(img) {
+            // Calculate canvas size to fit screen while maintaining aspect ratio
+            const maxWidth = window.innerWidth - 32;
+            const maxHeight = window.innerHeight - 300;
+            
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
+            }
+            
+            if (height > maxHeight) {
+                width = (maxHeight / height) * width;
+                height = maxHeight;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            ctx.drawImage(img, 0, 0, width, height);
+            originalImageData = ctx.getImageData(0, 0, width, height);
+            
+            // Show success feedback
+            showToast('Image loaded - Start editing with tools below');
+        }
+
+        function applyFilters() {
+            if (!originalImageData) {
+                showToast('Please upload an image first');
+                return;
+            }
+            
+            showLoading(true, 'Applying filters...', 'Enhancing your dental photo');
+            
+            setTimeout(() => {
+                const imageData = new ImageData(
+                    new Uint8ClampedArray(originalImageData.data),
+                    originalImageData.width,
+                    originalImageData.height
+                );
+                
+                // Apply filters in sequence
+                applyBrightnessContrast(imageData, brightnessLevel, contrastLevel);
+                applyNoiseReduction(imageData, noiseReductionLevel);
+                applySpecularControl(imageData, specularLevel);
+                applyShadeSafeWhitening(imageData, whiteningLevel);
+                
+                ctx.putImageData(imageData, 0, 0);
+                
+                if (isComparing) {
+                    updateComparison();
+                }
+                
+                showLoading(false);
+                showToast('Filters applied successfully - Ready for export');
+            }, 10);
+        }
+
+        function applyBrightnessContrast(imageData, brightness, contrast) {
+            const data = imageData.data;
+            const brightnessAdjust = brightness * 2.55;
+            const contrastAdjust = (contrast + 100) / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = ((data[i] - 128) * contrastAdjust + 128) + brightnessAdjust;     // Red
+                data[i + 1] = ((data[i + 1] - 128) * contrastAdjust + 128) + brightnessAdjust; // Green
+                data[i + 2] = ((data[i + 2] - 128) * contrastAdjust + 128) + brightnessAdjust; // Blue
+            }
+        }
+
+        function applyNoiseReduction(imageData, level) {
+            if (level === 0) return;
+            
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            const factor = level / 100;
+            
+            // Simple box blur for noise reduction
+            const output = new Uint8ClampedArray(data);
+            
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    for (let c = 0; c < 3; c++) {
+                        let sum = 0;
+                        let count = 0;
+                        
+                        for (let dy = -1; dy <= 1; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                const idx = ((y + dy) * width + (x + dx)) * 4 + c;
+                                sum += data[idx];
+                                count++;
+                            }
+                        }
+                        
+                        const idx = (y * width + x) * 4 + c;
+                        const original = data[idx];
+                        const blurred = sum / count;
+                        output[idx] = original * (1 - factor) + blurred * factor;
+                    }
+                }
+            }
+            
+            for (let i = 0; i < data.length; i++) {
+                data[i] = output[i];
+            }
+        }
+
+        function applySpecularControl(imageData, level) {
+            if (level === 0) return;
+            
+            const data = imageData.data;
+            const factor = level / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                
+                if (brightness > 200) { // Detect specular highlights
+                    const reduction = factor * (brightness - 200) / 55;
+                    data[i] = data[i] * (1 - reduction);
+                    data[i + 1] = data[i + 1] * (1 - reduction);
+                    data[i + 2] = data[i + 2] * (1 - reduction);
+                }
+            }
+        }
+
+        function applyShadeSafeWhitening(imageData, level) {
+            if (level === 0) return;
+            
+            const data = imageData.data;
+            const factor = level / 100;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                // Detect tooth-like colors (whites, yellows, light grays)
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                const brightness = (r + g + b) / 3;
+                const warmth = (r + g) / 2 - b;
+                
+                // Apply whitening to tooth-like areas
+                if (brightness > 100 && warmth > -20 && warmth < 40) {
+                    const whiteningFactor = factor * 0.3;
+                    data[i] = Math.min(255, r + (255 - r) * whiteningFactor);
+                    data[i + 1] = Math.min(255, g + (255 - g) * whiteningFactor);
+                    data[i + 2] = Math.min(255, b + (255 - b) * whiteningFactor * 0.8); // Less blue to maintain warmth
+                }
+            }
+        }
+
+        function toggleComparison() {
+            if (!originalImageData) return;
+            
+            isComparing = !isComparing;
+            const slider = document.getElementById('comparisonSlider');
+            
+            if (isComparing) {
+                slider.classList.remove('hidden');
+                updateComparison();
+                showToast(config.ui.messages.comparisonEnabled);
+            } else {
+                slider.classList.add('hidden');
+                applyFilters();
+                showToast(config.ui.messages.comparisonDisabled);
+            }
+        }
+
+        function updateComparison() {
+            if (!isComparing || !originalImageData) return;
+            
+            const width = canvas.width;
+            const splitX = Math.floor(width * comparisonPosition);
+            
+            // Draw original on left side
+            const originalData = new ImageData(
+                new Uint8ClampedArray(originalImageData.data),
+                originalImageData.width,
+                originalImageData.height
+            );
+            
+            ctx.putImageData(originalData, 0, 0);
+            
+            // Apply filters and draw on right side
+            const filteredData = new ImageData(
+                new Uint8ClampedArray(originalImageData.data),
+                originalImageData.width,
+                originalImageData.height
+            );
+            
+            applyBrightnessContrast(filteredData, brightnessLevel, contrastLevel);
+            applyNoiseReduction(filteredData, noiseReductionLevel);
+            applySpecularControl(filteredData, specularLevel);
+            applyShadeSafeWhitening(filteredData, whiteningLevel);
+            
+            // Create temporary canvas for filtered image
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.putImageData(filteredData, 0, 0);
+            
+            // Draw filtered portion
+            ctx.drawImage(tempCanvas, splitX, 0, width - splitX, canvas.height, splitX, 0, width - splitX, canvas.height);
+            
+            // Update slider position
+            const slider = document.getElementById('comparisonSlider');
+            slider.style.left = splitX + 'px';
+        }
+
+        function startComparisonDrag(e) {
+            isDraggingComparison = true;
+            e.preventDefault();
+        }
+
+        function handleComparisonDrag(e) {
+            if (!isDraggingComparison) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            let clientX;
+            
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+            } else {
+                clientX = e.clientX;
+            }
+            
+            const x = clientX - rect.left;
+            comparisonPosition = Math.max(0, Math.min(1, x / rect.width));
+            
+            updateComparison();
+        }
+
+        function endComparisonDrag() {
+            isDraggingComparison = false;
+        }
+
+        function resetAll() {
+            // Reset all sliders
+            document.getElementById('specularSlider').value = 0;
+            document.getElementById('noiseSlider').value = 0;
+            document.getElementById('whiteningSlider').value = 0;
+            document.getElementById('brightnessSlider').value = 0;
+            document.getElementById('contrastSlider').value = 0;
+            
+            // Reset values
+            specularLevel = 0;
+            noiseReductionLevel = 0;
+            whiteningLevel = 0;
+            brightnessLevel = 0;
+            contrastLevel = 0;
+            
+            // Update displays
+            document.getElementById('specularValue').textContent = '0%';
+            document.getElementById('noiseValue').textContent = '0%';
+            document.getElementById('whiteningValue').textContent = '0%';
+            document.getElementById('brightnessValue').textContent = '0%';
+            document.getElementById('contrastValue').textContent = '0%';
+            
+            // Reset comparison
+            isComparing = false;
+            document.getElementById('comparisonSlider').classList.add('hidden');
+            
+            // Redisplay original image
+            if (originalImageData) {
+                ctx.putImageData(originalImageData, 0, 0);
+                showToast('All settings reset - Back to original');
+            }
+        }
+
+        function applyPreset(preset) {
+            if (!originalImageData) {
+                showToast(config.ui.messages.uploadFirst);
+                return;
+            }
+            
+            const presetConfig = config.presets[preset];
+            if (presetConfig) {
+                setSliderValue('brightnessSlider', presetConfig.brightness);
+                setSliderValue('contrastSlider', presetConfig.contrast);
+                setSliderValue('noiseSlider', presetConfig.noise);
+                setSliderValue('specularSlider', presetConfig.specular);
+                setSliderValue('whiteningSlider', presetConfig.whitening);
+                showToast(preset + ' ' + config.ui.messages.presetApplied);
+            }
+        }
+
+        function setSliderValue(sliderId, value) {
+            const slider = document.getElementById(sliderId);
+            slider.value = value;
+            slider.dispatchEvent(new Event('input'));
+        }
+
+        function showExportOptions() {
+            if (!originalImageData) {
+                showToast(config.ui.messages.uploadFirst);
+                return;
+            }
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function exportImage(preset) {
+            if (!currentImage) {
+                showToast('Please upload an image first');
+                return;
+            }
+            
+            closeExportModal();
+            showLoading(true, 'Exporting image...', 'Creating your optimized dental photo');
+            
+            setTimeout(() => {
+                const exportConfig = config.exportPresets[preset];
+                let exportWidth, exportHeight;
+                
+                if (preset === 'original') {
+                    exportWidth = currentImage.width;
+                    exportHeight = currentImage.height;
+                } else {
+                    exportWidth = exportConfig.width;
+                    exportHeight = exportConfig.height;
+                }
+                
+                // Create export canvas
+                const exportCanvas = document.createElement('canvas');
+                exportCanvas.width = exportWidth;
+                exportCanvas.height = exportHeight;
+                const exportCtx = exportCanvas.getContext('2d');
+                
+                // Calculate scaling and positioning
+                const scale = Math.min(exportWidth / canvas.width, exportHeight / canvas.height);
+                const scaledWidth = canvas.width * scale;
+                const scaledHeight = canvas.height * scale;
+                const x = (exportWidth - scaledWidth) / 2;
+                const y = (exportHeight - scaledHeight) / 2;
+                
+                // Fill background
+                exportCtx.fillStyle = '#ffffff';
+                exportCtx.fillRect(0, 0, exportWidth, exportHeight);
+                
+                // Draw image
+                exportCtx.drawImage(canvas, x, y, scaledWidth, scaledHeight);
+                
+                // Add watermark for clinic branding
+                exportCtx.fillStyle = 'rgba(14, 165, 233, 0.8)';
+                exportCtx.font = 'bold 16px Arial';
+                exportCtx.textAlign = 'right';
+                exportCtx.fillText(config.clinic.name, exportWidth - 10, exportHeight - 10);
+                
+                // Download image
+                exportCanvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `dental-photo-${preset}-${Date.now()}.jpg`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    showLoading(false);
+                    showToast(`Successfully exported ${preset} image - Check downloads folder`);
+                }, 'image/jpeg', exportConfig.quality);
+            }, 100);
+        }
+
+        function showMoreOptions() {
+            // Additional options can be added here
+            showToast(config.ui.messages.comingSoon);
+        }
+
+        function showLoading(show, message = null, subMessage = null) {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const loadingSubMessage = document.getElementById('loadingSubMessage');
+            
+            if (show) {
+                overlay.classList.remove('hidden');
+                if (message) loadingMessage.textContent = message;
+                if (subMessage) loadingSubMessage.textContent = subMessage;
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (currentImage) {
+                displayImage(currentImage);
+                applyFilters();
+            }
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Smart Features Functions
+        async function applySmartEnhance() {
+            if (!originalImageData || !smartFilters) {
+                showToast('Please upload an image first');
+                return;
+            }
+
+            const startTime = performance.now();
+
+            try {
+                isSmartProcessing = true;
+                showLoading(true, 'Applying Smart Enhancement...', 'AI-powered optimization in progress...');
+                
+                // Wrap with performance optimization and error handling
+                const enhancedFunction = optimizeSmartFunction(
+                    (imageData) => smartFilters.applySmartEnhance(imageData),
+                    window.mobilePerformanceOptimizer
+                );
+                
+                const wrappedFunction = wrapSmartFunction(
+                    enhancedFunction,
+                    window.smartFeaturesErrorHandler,
+                    'smart_enhancement'
+                );
+                
+                const result = await wrappedFunction(originalImageData);
+                
+                if (result.success) {
+                    ctx.putImageData(result.result, 0, 0);
+                    showLoading(false);
+                    showToast('Smart enhancement applied successfully!');
+                    
+                    // Track usage
+                    window.dataPersistenceManager.trackUsage('smart_enhance', {
+                        processingTime: performance.now() - startTime,
+                        success: true
+                    });
+                } else {
+                    throw new Error(result.error || 'Smart enhancement failed');
+                }
+                
+                isSmartProcessing = false;
+            } catch (error) {
+                console.error('Smart enhancement failed:', error);
+                showLoading(false);
+                showToast('Smart enhancement failed. Using manual controls.');
+                isSmartProcessing = false;
+                
+                // Track error
+                window.dataPersistenceManager.trackUsage('smart_enhance', {
+                    processingTime: performance.now() - startTime,
+                    success: false,
+                    error: error.message
+                });
+            }
+        }
+
+        async function applyDentalMode() {
+            if (!originalImageData || !smartFilters) {
+                showToast('Please upload an image first');
+                return;
+            }
+
+            try {
+                isSmartProcessing = true;
+                showLoading(true, 'Applying Dental Mode...', 'Optimizing for dental photography...');
+                
+                const enhancedImageData = await smartFilters.applyDentalMode(originalImageData);
+                ctx.putImageData(enhancedImageData, 0, 0);
+                
+                showLoading(false);
+                showToast('Dental mode applied successfully!');
+                isSmartProcessing = false;
+            } catch (error) {
+                console.error('Dental mode failed:', error);
+                showLoading(false);
+                showToast('Dental mode failed. Using manual controls.');
+                isSmartProcessing = false;
+            }
+        }
+
+        async function runAutoDetection() {
+            if (!originalImageData || !mlIntegration) {
+                showToast('Please upload an image first');
+                return;
+            }
+
+            try {
+                showLoading(true, 'Running Auto-Detection...', 'Analyzing dental features...');
+                
+                detectionResults = await mlIntegration.detectDentalFeatures(originalImageData);
+                updateDetectionResults(detectionResults);
+                
+                showLoading(false);
+                showToast(`Detection complete! Found ${detectionResults.teeth.count} teeth.`);
+            } catch (error) {
+                console.error('Auto-detection failed:', error);
+                showLoading(false);
+                showToast('Auto-detection failed. Please try again.');
+            }
+        }
+
+        function updateDetectionResults(results) {
+            const resultsDiv = document.getElementById('detectionResults');
+            let html = '<div class="space-y-2">';
+            
+            if (results.teeth) {
+                html += `<p><strong>Teeth Detected:</strong> ${results.teeth.count} (Confidence: ${Math.round(results.teeth.confidence * 100)}%)</p>`;
+            }
+            
+            if (results.gums && results.gums.line) {
+                html += `<p><strong>Gum Line:</strong> Detected</p>`;
+            }
+            
+            if (results.smileZones) {
+                html += `<p><strong>Smile Zones:</strong> Anterior & Posterior identified</p>`;
+            }
+            
+            if (results.plaque && results.plaque.areas.length > 0) {
+                html += `<p><strong>Plaque Areas:</strong> ${results.plaque.areas.length} detected</p>`;
+            }
+            
+            if (results.restorations && results.restorations.areas.length > 0) {
+                html += `<p><strong>Restorations:</strong> ${results.restorations.areas.length} detected</p>`;
+            }
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function showProfessionalTools() {
+            document.getElementById('professionalToolsModal').classList.remove('hidden');
+        }
+
+        function closeProfessionalTools() {
+            document.getElementById('professionalToolsModal').classList.add('hidden');
+        }
+
+        async function matchVITAShade(shade) {
+            if (!originalImageData || !smartEnhancement) {
+                showToast('Please upload an image first');
+                return;
+            }
+
+            try {
+                showLoading(true, `Matching ${shade} Shade...`, 'Analyzing tooth colors...');
+                
+                // Apply shade matching enhancement
+                const options = {
+                    smartWhitening: true,
+                    whitening: 0, // Preserve natural for shade matching
+                    adaptiveContrast: true,
+                    contrast: 10,
+                    adaptiveNoise: true,
+                    noise: 70,
+                    smartSpecular: true,
+                    specular: -35,
+                    colorCorrection: true,
+                    targetShade: shade
+                };
+                
+                const enhancedImageData = await smartEnhancement.applySmartEnhancement(originalImageData, options);
+                ctx.putImageData(enhancedImageData, 0, 0);
+                
+                showLoading(false);
+                showToast(`VITA ${shade} shade matching applied!`);
+                closeProfessionalTools();
+            } catch (error) {
+                console.error('Shade matching failed:', error);
+                showLoading(false);
+                showToast('Shade matching failed. Please try again.');
+            }
+        }
+
+        async function applyCameraProfile(profileName) {
+            if (!originalImageData || !smartFilters) {
+                showToast('Please upload an image first');
+                return;
+            }
+
+            try {
+                showLoading(true, `Applying ${profileName} Profile...`, 'Optimizing for camera characteristics...');
+                
+                const enhancedImageData = await smartFilters.applyCameraProfile(originalImageData, profileName);
+                ctx.putImageData(enhancedImageData, 0, 0);
+                
+                showLoading(false);
+                showToast(`${profileName} camera profile applied!`);
+                closeProfessionalTools();
+            } catch (error) {
+                console.error('Camera profile failed:', error);
+                showLoading(false);
+                showToast('Camera profile failed. Please try again.');
+            }
+        }
+
+        async function applyProfessionalPreset(presetName) {
+            if (!originalImageData || !smartFilters) {
+                showToast('Please upload an image first');
+                return;
+            }
+
+            try {
+                showLoading(true, `Applying ${presetName}...`, 'Loading professional settings...');
+                
+                const enhancedImageData = await smartFilters.applyProfessionalPreset(originalImageData, presetName);
+                ctx.putImageData(enhancedImageData, 0, 0);
+                
+                showLoading(false);
+                showToast(`${presetName} preset applied successfully!`);
+                closeProfessionalTools();
+            } catch (error) {
+                console.error('Professional preset failed:', error);
+                showLoading(false);
+                showToast('Professional preset failed. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
