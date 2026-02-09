@@ -1150,8 +1150,12 @@
 
         // Smart Features Functions
         async function applySmartEnhance() {
-            if (!originalImageData || !smartFilters) {
+            if (!originalImageData) {
                 showToast('Please upload an image first');
+                return;
+            }
+            if (!smartFilters) {
+                showToast('Smart features still initializing - Try manual sliders');
                 return;
             }
 
@@ -1206,8 +1210,12 @@
         }
 
         async function applyDentalMode() {
-            if (!originalImageData || !smartFilters) {
+            if (!originalImageData) {
                 showToast('Please upload an image first');
+                return;
+            }
+            if (!smartFilters) {
+                showToast('Smart features still initializing - Try manual sliders');
                 return;
             }
 
@@ -1230,8 +1238,12 @@
         }
 
         async function runAutoDetection() {
-            if (!originalImageData || !mlIntegration) {
+            if (!originalImageData) {
                 showToast('Please upload an image first');
+                return;
+            }
+            if (!mlIntegration) {
+                showToast('AI detection still initializing - Please wait a moment');
                 return;
             }
 
@@ -1287,8 +1299,12 @@
         }
 
         async function matchVITAShade(shade) {
-            if (!originalImageData || !smartEnhancement) {
+            if (!originalImageData) {
                 showToast('Please upload an image first');
+                return;
+            }
+            if (!smartEnhancement) {
+                showToast('Smart features still initializing - Try manual sliders');
                 return;
             }
 
@@ -1323,8 +1339,12 @@
         }
 
         async function applyCameraProfile(profileName) {
-            if (!originalImageData || !smartFilters) {
+            if (!originalImageData) {
                 showToast('Please upload an image first');
+                return;
+            }
+            if (!smartFilters) {
+                showToast('Smart features still initializing - Try manual sliders');
                 return;
             }
 
@@ -1345,8 +1365,12 @@
         }
 
         async function applyProfessionalPreset(presetName) {
-            if (!originalImageData || !smartFilters) {
+            if (!originalImageData) {
                 showToast('Please upload an image first');
+                return;
+            }
+            if (!smartFilters) {
+                showToast('Smart features still initializing - Try manual sliders');
                 return;
             }
 
